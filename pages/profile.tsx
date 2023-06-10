@@ -1,14 +1,20 @@
 import Link from 'next/link'
+import { GetServerSideProps, NextPage } from 'next'
 import { Card, Typography, Space } from '@supabase/ui'
 import { supabase } from '../lib/initSupabase'
+import { User } from '@supabase/supabase-js'
 
-export default function Profile({ user }) {
+interface ProfileProps {
+  user: User | null
+}
+
+const Profile: NextPage<ProfileProps> = ({ user }) => {
   return (
     <div style={{ maxWidth: '420px', margin: '96px auto' }}>
       <Card>
         <Space direction="vertical" size={6}>
           <Typography.Text>You're signed in</Typography.Text>
-          <Typography.Text strong>Email: {user.email}</Typography.Text>
+          <Typography.Text strong>Email: {user?.email}</Typography.Text>
           <Typography.Text type="success">
             User data retrieved server-side (from Cookie in getServerSideProps):
           </Typography.Text>
@@ -26,7 +32,9 @@ export default function Profile({ user }) {
   )
 }
 
-export async function getServerSideProps({ req }) {
+export default Profile
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { user } = await supabase.auth.api.getUserByCookie(req)
 
   if (!user) {
