@@ -8,7 +8,7 @@ const NotFoundPage = () => {
   useEffect(() => {
     setTimeout(() => {
       router.push('/home');
-    }, 3000); // Redirect after 3 seconds
+    }, 2000); // Redirect after 2 seconds
   }, []);
 
   return (
