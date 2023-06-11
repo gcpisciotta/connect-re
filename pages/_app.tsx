@@ -1,16 +1,26 @@
+import React from 'react';
 import { Auth } from '@supabase/ui'
 import { supabase } from '../lib/initSupabase'
-import './../style.css'
-import { AppProps } from 'next/app' // Needed for TypeScript
+import './globals.css'
+import { AppProps } from 'next/app'
+import { NextComponentType } from 'next'
 
-const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+interface MyAppProps extends AppProps {
+  Component: NextComponentType;
+}
+
+const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
+
   
+
   return (
-    <main className='dark'>
-      <Auth.UserContextProvider supabaseClient={supabase}>
-        <Component {...pageProps} />
-      </Auth.UserContextProvider>
-    </main>
+    
+    <Auth.UserContextProvider supabaseClient={supabase}>
+      <main className=''>
+      <Component {...pageProps} />
+      </main>
+    </Auth.UserContextProvider>
+  
   )
 }
 
