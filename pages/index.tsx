@@ -3,6 +3,7 @@ import useSWR from 'swr'
 import { Auth, Card, Typography, Space, Button, Icon } from '@supabase/ui'
 import { supabase } from '../lib/initSupabase'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 
 const fetcher = ([url, token]) =>
@@ -13,11 +14,13 @@ const fetcher = ([url, token]) =>
   }).then((res) => res.json())
 
 const Index = () => {
+  const router = useRouter()
   const { user, session } = Auth.useUser()
   const { data, error } = useSWR(
     session ? ['/api/getUser', session.access_token] : null,
     fetcher
   )
+
   const [authView, setAuthView] = useState('sign_in')
 
   useEffect(() => {
@@ -43,67 +46,42 @@ const Index = () => {
   }, [])
 
   const View = () => {
-    if (!user)
+    if (!user || !session || session?.expires_in <= 1) {
       return (
         <Space direction="vertical" size={8}>
           <div>
             <img
-              src="https://app.supabase.io/img/supabase-dark.svg"
+              src="https://app.supabase.io/img/supabase-light.svg"
               width="96"
             />
             <Typography.Title level={3}>
-              Welcome to Supabase Auth
+              Welcome to ConnectRE
             </Typography.Title>
           </div>
           <Auth
             supabaseClient={supabase}
-            providers={['google', 'github']}
+            providers={['google']}
             socialLayout="horizontal"
             socialButtonSize="xlarge"
           />
         </Space>
       )
+    } else {
+          
+      router.push('/home')
 
-    return (
-      <Space direction="vertical" size={6}>
-        {authView === 'update_password' && (
-          <Auth.UpdatePassword supabaseClient={supabase} />
-        )}
-        {user && (
-          <>
-            <Typography.Text>You're signed in</Typography.Text>
-            <Typography.Text strong>Email: {user.email}</Typography.Text>
+      return (
+        <Typography.Title level={3}>
+        Loading...
+      </Typography.Title>
 
-            <Button
-              type="outline"
-              onClick={() => supabase.auth.signOut()}
-            >
-              Log out
-            </Button>
-            {error && (
-              <Typography.Text>Failed to fetch user!</Typography.Text>
-            )}
-            {data && !error ? (
-              <>
-                <Typography.Text type="success">
-                  User data retrieved server-side (in API route):
-                </Typography.Text>
 
-                <Typography.Text>
-                  <pre>{JSON.stringify(data, null, 2)}</pre>
-                </Typography.Text>
-              </>
-            ) : (
-              <div>Loading...</div>
-            )}
+      )
 
-            <Typography.Text>
-              <Link href="/profile">SSR example with getServerSideProps</Link>
-            </Typography.Text>
-          </>
-        )}
-      </Space>
-    )
+    }
+
+
+
   }
 
   return (

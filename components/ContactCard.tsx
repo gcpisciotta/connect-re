@@ -48,7 +48,7 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
   }
 
   return (
-    <div className="m-8 bg-white p-8 rounded-lg h-full">
+    <div className="mx-8 my-4 bg-white p-8 rounded-lg h-full">
 
       <div className="px-4 sm:px-0">
         <Stack direction="row" spacing={4} alignItems="center">

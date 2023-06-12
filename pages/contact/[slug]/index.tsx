@@ -6,6 +6,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import { supabase } from '../../../lib/initSupabase'
 import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { User } from '@supabase/supabase-js'
+import ReminderFeed from '../../../components/ReminderFeed';
 
 interface ContactPageProps {
   slug: string;
@@ -42,7 +43,12 @@ const ContactPage: NextPage<ContactPageProps> = ({ slug, user }) => {
   return (
     <Page user={user}>
       <div>
-        <ContactCard contact={contact} />
+        <main className="lg:pr-96">
+          <ContactCard contact={contact} />
+        </main>
+        <aside className="bg-white lg:fixed lg:bottom-0 lg:right-0 lg:top-0 lg:w-96 lg:overflow-y-auto lg:border-l lg:border-white/5">
+          <ReminderFeed contact={contact} />
+        </aside>
       </div>
     </Page>
   );
