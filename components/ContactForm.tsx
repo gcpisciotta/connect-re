@@ -1,6 +1,10 @@
 import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { TextField, Button, Autocomplete, Stack } from '@mui/material';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import { supabase } from '../lib/initSupabase';
 
@@ -12,8 +16,8 @@ interface ContactProps {
   phone: string;
   company: string;
   position: string;
-  linkedin: string;
   twitter: string;
+  linkedin: string;
   instagram: string;
   dob: Date;
   howMet: string;
@@ -49,6 +53,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
       instagram,
       howMet: how_met,
       user_id,
+      dob,
     } = formData;
 
     const { data, error } = await supabase
@@ -65,6 +70,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
         instagram,
         how_met,
         user_id,
+        dob,
       });
 
     console.log(data, error);
@@ -82,6 +88,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
   return (
     <div className="m-8 bg-white p-8 rounded-lg h-full">
       <h1 className="text-2xl font-bold mb-8">{mode}</h1>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack direction="column" spacing={2} justifyContent="center">
           <Controller
@@ -114,6 +121,13 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
             defaultValue={contact?.position}
             render={({ field }) => <TextField {...field} label="Position" />}
           />
+          
+          <Controller
+            name="twitter"
+            control={control}
+            defaultValue={contact?.twitter}
+            render={({ field }) => <TextField {...field} label="Twitter" />}
+          />
           <Controller
             name="linkedin"
             control={control}
@@ -121,10 +135,34 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
             render={({ field }) => <TextField {...field} label="LinkedIn" />}
           />
           <Controller
-            name="twitter"
+            name="instagram"
             control={control}
-            defaultValue={contact?.twitter}
-            render={({ field }) => <TextField {...field} label="Twitter" />}
+            defaultValue={contact?.instagram}
+            render={({ field }) => <TextField {...field} label="Instagram" />}
+          />
+          <Controller
+              name="dob"
+              control={control}
+              defaultValue={contact?.dob ? dayjs(contact?.dob) : null}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  label="Birthday"
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              )}
+            />
+          <Controller
+            name="dateMet"
+            control={control}
+            defaultValue={contact?.dateMet ? dayjs(contact?.dateMet) : dayjs()}
+            render={({ field }) => (
+              <DatePicker
+                {...field}
+                label="When you met"
+                renderInput={(params) => <TextField {...params} />}
+              />
+            )}
           />
           <Controller
             name="howMet"
@@ -147,6 +185,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
           <Button type="submit">Submit</Button>
         </Stack>
       </form>
+      </LocalizationProvider>
     </div>
   );
 };

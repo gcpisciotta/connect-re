@@ -1,24 +1,14 @@
-import React, { use, useState, useEffect } from 'react';
-import { Cake as CakeIcon, Work as WorkIcon, LinkedIn as LinkedInIcon, Twitter as TwitterIcon } from '@material-ui/icons';
-import { DocumentText as DocumentTextIcon } from '@heroicons/react/outline'
-import { Field } from './Field';
-import Conversations from './Conversations';
-import Avatar from '@mui/material/Avatar';
-
-import { useForm, Controller } from "react-hook-form";
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/initSupabase'
-import { TextField, Button, FormControl, InputLabel, MenuItem, Select, Autocomplete } from '@mui/material';
-import { Stack } from '@mui/material';
-import { useRouter } from 'next/navigation';
-import { IconButton } from '@mui/material';
-import { Delete as DeleteIcon } from '@material-ui/icons';
-import { Check as CheckIcon } from '@material-ui/icons';
+import ReminderForm from './ReminderForm';
+import ReminderListItem from './ReminderListItem';
+
 interface ContactCardProps {
-  contact: any;
+  contact?: any;
+  showForm?: boolean;
 }
 
-
-export const ReminderFeed: React.FC<ContactCardProps> = ({ contact }) => {
+export const ReminderFeed: React.FC<ContactCardProps> = ({ contact, showForm=true }) => {
   const user = supabase.auth.user();
 
   const [reminder, setReminder] = useState('');  // State to keep track of reminder text
@@ -47,7 +37,7 @@ export const ReminderFeed: React.FC<ContactCardProps> = ({ contact }) => {
     }
 
     const new_reminder = {
-      contact_id: contact.id,
+      contact_id: contact?.id,
       message: reminder,
       reminder_date: newDate,
       user_id: user?.id
@@ -69,28 +59,71 @@ export const ReminderFeed: React.FC<ContactCardProps> = ({ contact }) => {
   }
 
   const fetchReminders = async (contact) => {
-
-    const { data: reminders, error } = await supabase
+    let query = supabase
       .from('reminders')
       .select()
-      .eq('contact_id', contact.id)
       .eq('acknowledged', false)
+      .eq('user_id', user?.id)
       .order('reminder_date', { ascending: true });
 
+    // Add contact_id filter only if contact is defined
+    if (contact?.id) {
+      query = query.eq('contact_id', contact?.id);
+    }
+
+  
+    const { data: reminders, error } = await query;
+  
     if (error) {
       console.error(error);
       return;
     }
 
-    setReminders(reminders);
+
+    if (contact) {
+      setReminders(reminders);
+    } else {
+      fetchContacts(reminders);
+    }
   };
 
+  const fetchContacts = async (reminders) => {
+    // Extract unique contact_ids from reminders
+    const contactIds = Array.from(new Set(reminders.map((reminder) => reminder.contact_id)));
+  
+    // Fetch contacts from supabase using contact_ids
+    const { data: contactsData, error: contactsError } = await supabase
+      .from('contacts')
+      .select('*')
+      .in('id', contactIds);
+  
+    if (contactsError) {
+      console.error(contactsError);
+      return;
+    }
+  
+    // Create a lookup object for contacts by id
+    const contactsById = contactsData.reduce((acc, contact) => {
+      acc[contact.id] = contact;
+      return acc;
+    }, {});
+  
+    // Add contact name to each reminder
+    const remindersWithContacts = reminders.map((reminder) => ({
+      ...reminder,
+      contact_name: contactsById[reminder.contact_id]?.name || 'N/A',
+    }));
+  
+    setReminders(remindersWithContacts);
+  };
+  
+
   useEffect(() => {
-    if (user && contact.id) {
-      console.log(contact.id)
+    if (user && (!contact || (contact && contact?.id))) {
+      console.log(contact?.id)
       fetchReminders(contact);
     }
-  }, [contact.id, user]);
+  }, [contact, user]);
 
   const handleAcknowledge = async (reminder) => {
     const { data, error } = await supabase
@@ -111,74 +144,12 @@ export const ReminderFeed: React.FC<ContactCardProps> = ({ contact }) => {
       <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
         <h2 className="text-base font-semibold leading-7 text-slate-800">Reminders</h2>
       </header>
-      <Stack spacing={1} p={2} className="border-b border-white/5">
-        <TextField
-          label="Create a reminder"
-          multiline
-
-          value={reminder}
-          onChange={(e) => setReminder(e.target.value)}
-          variant="outlined"
-        />
-        <Stack direction="row" spacing={2} justifyContent="space-between">
-          <Button variant="outlined" onClick={() => handleSetReminder("1 day")}>1 Day</Button>
-          <Button variant="outlined" onClick={() => handleSetReminder("1 week")}>1 Week</Button>
-          <Button variant="outlined" onClick={() => handleSetReminder("1 month")}>1 Month</Button>
-        </Stack>
-        <div className='w-full text-center text-gray-700 bold'>
-          OR
-        </div>
-        <Stack direction="row" spacing={2} justifyContent="center">
-          <TextField
-            type="date"
-            label="Set a custom date"
-            fullWidth
-            value={dateField}
-            onChange={(e) => setDateField(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-          <Button variant="outlined" onClick={() => handleSetReminder()}>Set</Button>
-        </Stack>
-      </Stack>
+      {showForm && <ReminderForm handleSetReminder={handleSetReminder} />}
       <ul role="list" className="divide-y divide-white/5">
         {reminders.map((item, index) => (
-          <li key={item} className="px-4 py-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-x-3">
-              <h3 className="flex-auto text-sm font-semibold leading-6 ">
-                <time
-                  dateTime={item.reminder_date}
-                  style={{
-                    fontWeight: new Date(item.reminder_date) < new Date() ? "bold" : "600",
-                    color: new Date(item.reminder_date) < new Date() ? "red" : "#505050",
-                  }}
-                >
-                  {new Date(item.reminder_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </time>
-              </h3>
-
-              <div className="ml-auto border-2 rounded-3xl">
-                <IconButton
-                  onClick={() => handleAcknowledge(item)}
-                  aria-label="delete conversation"
-                  color="success"
-                >
-                  <CheckIcon />
-                </IconButton>
-              </div>
-            </div>
-            <p className="mt-3 text-sm text-gray-500">
-              <span className="text-gray-400">
-                {item.message}
-              </span>
-            </p>
-          </li>
+          <ReminderListItem key={item} item={item} handleAcknowledge={handleAcknowledge} />
         ))}
-
       </ul>
     </>
   )
 }
-
-export default ReminderFeed;

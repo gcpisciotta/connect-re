@@ -46,7 +46,16 @@ const Index = () => {
   }, [])
 
   const View = () => {
-    if (!user || !session || session?.expires_in <= 1) {
+
+    const currentTime = Math.floor(Date.now() / 1000);
+    if (user && session && session?.expires_at > currentTime) {
+      router.push('/home');
+      return (
+        <Typography.Title level={3}>
+          Loading...
+        </Typography.Title>
+      )
+    } else {
       return (
         <Space direction="vertical" size={8}>
           <div>
@@ -66,22 +75,7 @@ const Index = () => {
           />
         </Space>
       )
-    } else {
-          
-      router.push('/home')
-
-      return (
-        <Typography.Title level={3}>
-        Loading...
-      </Typography.Title>
-
-
-      )
-
     }
-
-
-
   }
 
   return (

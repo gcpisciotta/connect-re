@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cake as CakeIcon, Work as WorkIcon, LinkedIn as LinkedInIcon, Twitter as TwitterIcon } from '@material-ui/icons';
+import { Cake as CakeIcon, Work as WorkIcon, LinkedIn as LinkedInIcon, Twitter as TwitterIcon, Instagram as InstagramIcon } from '@material-ui/icons';
 import { DocumentText as DocumentTextIcon } from '@heroicons/react/outline'
 import { Field } from './Field';
 import Conversations from './Conversations';
@@ -80,14 +80,15 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
           <Field label="Company">{contact.company}</Field>
           <Field label="Position">{contact.position}</Field>
           <Field label="Social">
-            <a href={contact.linkedin} className="mr-2 text-blue-600"><LinkedInIcon /></a>
-            <a href={contact.twitter} className="text-blue-600"><TwitterIcon /></a>
+          <a href={contact.linkedin} className="mr-2" style={{color: "#0077b5"}}><LinkedInIcon /></a>
+          <a href={contact.twitter} style={{color: "#1DA1F2"}}><TwitterIcon /></a>
+          <a href={contact.instagram} className="ml-2" style={{color: "#E1306C"}}><InstagramIcon /></a>
           </Field>
           <Field label="Date of Birth">
             <CakeIcon className="inline text-red-600 mr-1" /> {contact.dob}
           </Field>
           <Field label="How You Met">
-            {contact.dateMet}: {contact.how_met}
+            {contact?.date_met}: {contact?.how_met}
           </Field>
           <Conversations contact={contact} />
         </dl>

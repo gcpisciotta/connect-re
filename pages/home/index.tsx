@@ -21,12 +21,13 @@ import { Bars3Icon, ChevronRightIcon, ChevronUpDownIcon, MagnifyingGlassIcon } f
 import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
 import { Avatar } from '@material-ui/core'
-
 import { Auth } from '@supabase/ui';
+import { ReminderFeed } from '../../components/ReminderFeedOldDep'
+import { useRouter } from 'next/router'
 
 
 const activityItems = [
-  
+
 ]
 
 function classNames(...classes) {
@@ -135,6 +136,15 @@ interface HomePageProps {
 
 const HomePage: React.FC<HomePageProps> = ({ user }) => {
 
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.log("Error logging out:", error.message);
+  
+    router.push('/')
+  }
+
   // const { user } = Auth.useUser();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -148,9 +158,19 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
     setContacts(contacts);
   };
 
+  const handleAuth = async ({ req, res }) => {
+    const { user } = await supabase.auth.api.getUserByCookie(req)
+
+    if (!user) {
+      handleLogout()
+    }
+  }
+
+
 
   useEffect(() => {
 
+  
     fetchContacts();
 
 
@@ -280,7 +300,7 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
                         <circle cx={1} cy={1} r={1} />
                       </svg>
                       <p className="whitespace-nowrap">{contact.phone} </p>
-                      
+
                     </div>
                   </div>
                   {/* <div className="rounded-full flex-none py-1 px-2 text-xs font-medium ring-1 ring-inset">
@@ -325,6 +345,7 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
             ))}
 
           </ul>
+          <ReminderFeed showForm={false} />
         </aside>
 
       </Page>
@@ -335,12 +356,14 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
 export default HomePage
 
 
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const { user } = await supabase.auth.api.getUserByCookie(req)
 
   if (!user) {
-    // If no user, redirect to index.
-    return { props: {}, redirect: { destination: '/', permanent: false } }
+    // If no user, redirect to index and clear the cookie.  
+    // res.setHeader('Set-Cookie', `sb:token=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT`);
+    await supabase.auth.signOut();
+    // return { props: {}, redirect: { destination: '/', permanent: false } }
   }
 
   // If there is a user, return it.

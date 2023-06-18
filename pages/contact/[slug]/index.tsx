@@ -6,7 +6,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import { supabase } from '../../../lib/initSupabase'
 import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { User } from '@supabase/supabase-js'
-import ReminderFeed from '../../../components/ReminderFeed';
+import { ReminderFeed } from '../../../components/ReminderFeedOldDep';
 
 interface ContactPageProps {
   slug: string;
