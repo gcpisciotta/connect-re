@@ -22,7 +22,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import Link from 'next/link'
 import { Avatar } from '@material-ui/core'
 import { Auth } from '@supabase/ui';
-import { ReminderFeed } from '../../components/ReminderFeedOldDep'
+import { ReminderFeed } from '../../components/ReminderFeed'
 import { useRouter } from 'next/router'
 
 
@@ -39,113 +39,20 @@ interface ProfileProps {
   contacts: any[]
 }
 
-const contacts = [
-  {
-    "id": 1,
-    "photo": "https://www.hampshirere.com/sites/hampshire/files/images/people/Jon_Hanson.jpg",
-    "name": "John Doe",
-    "email": "johndoe@example.com",
-    "phone": "123-456-7890",
-    "company": "Example Company",
-    "position": "Software Engineer",
-    "social": {
-      "linkedin": "https://www.linkedin.com/in/johndoe",
-      "twitter": "https://twitter.com/johndoe"
-    },
-    "dob": "1990-01-01",
-    "tags": [
-      "friend",
-      "colleague"
-    ],
-    "dateMet": "2022-05-10",
-    "howMet": "Attended a conference together",
-    "conversations": [
-      {
-        "id": 1,
-        "date": "2022-06-01",
-        "notes": "Discussed project collaboration"
-      },
-      {
-        "id": 2,
-        "date": "2022-06-15",
-        "notes": "Follow-up on previous conversation"
-      }
-    ],
-    "reminders": [
-      {
-        "id": 1,
-        "date": "2022-07-01",
-        "description": "Follow up with John regarding project"
-      },
-      {
-        "id": 2,
-        "date": "2022-08-15",
-        "description": "Send birthday greetings"
-      }
-    ]
-  },
-  {
-    "id": 1,
-    "photo": "https://www.hampshirere.com/sites/hampshire/files/images/people/Jon_Hanson.jpg",
-    "name": "John Doe",
-    "email": "johndoe@example.com",
-    "phone": "123-456-7890",
-    "company": "Example Company",
-    "position": "Software Engineer",
-    "social": {
-      "linkedin": "https://www.linkedin.com/in/johndoe",
-      "twitter": "https://twitter.com/johndoe"
-    },
-    "dob": "1990-01-01",
-    "tags": [
-      "friend",
-      "colleague"
-    ],
-    "dateMet": "2022-05-10",
-    "howMet": "Attended a conference together",
-    "conversations": [
-      {
-        "id": 1,
-        "date": "2022-06-01",
-        "notes": "Discussed project collaboration"
-      },
-      {
-        "id": 2,
-        "date": "2022-06-15",
-        "notes": "Follow-up on previous conversation"
-      }
-    ],
-    "reminders": [
-      {
-        "id": 1,
-        "date": "2022-07-01",
-        "description": "Follow up with John regarding project"
-      },
-      {
-        "id": 2,
-        "date": "2022-08-15",
-        "description": "Send birthday greetings"
-      }
-    ]
-  }
-]
-
 interface HomePageProps {
   user: User | null
 }
 
-const HomePage: React.FC<HomePageProps> = ({ user }) => {
+const HomePage: React.FC<HomePageProps> = () => {
 
+  const { user } = Auth.useUser()
   const router = useRouter()
+  const [isMounted, setIsMounted] = useState(false);
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.log("Error logging out:", error.message);
-  
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
     router.push('/')
   }
-
-  // const { user } = Auth.useUser();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [contacts, setContacts] = useState([]);
@@ -158,26 +65,15 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
     setContacts(contacts);
   };
 
-  const handleAuth = async ({ req, res }) => {
-    const { user } = await supabase.auth.api.getUserByCookie(req)
-
-    if (!user) {
-      handleLogout()
-    }
-  }
-
 
 
   useEffect(() => {
-
-  
+    setIsMounted(true);  
     fetchContacts();
-
-
 
   }, [user]);
 
-
+  if (!isMounted) return null;
 
   return (
     <>
@@ -355,17 +251,3 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
 
 export default HomePage
 
-
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req)
-
-  if (!user) {
-    // If no user, redirect to index and clear the cookie.  
-    // res.setHeader('Set-Cookie', `sb:token=; Max-Age=0; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT`);
-    await supabase.auth.signOut();
-    // return { props: {}, redirect: { destination: '/', permanent: false } }
-  }
-
-  // If there is a user, return it.
-  return { props: { user } }
-}

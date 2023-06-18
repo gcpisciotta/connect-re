@@ -6,7 +6,7 @@ import { GetServerSideProps, NextPage } from 'next'
 import { supabase } from '../../../lib/initSupabase'
 import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { User } from '@supabase/supabase-js'
-import { ReminderFeed } from '../../../components/ReminderFeedOldDep';
+import { ReminderFeed } from '../../../components/ReminderFeed';
 
 interface ContactPageProps {
   slug: string;
@@ -14,7 +14,9 @@ interface ContactPageProps {
 }
 
 
-const ContactPage: NextPage<ContactPageProps> = ({ slug, user }) => {
+const ContactPage: NextPage<ContactPageProps> = ({ slug }) => {
+
+  const { user } = Auth.useUser();
   const [contact, setContact] = useState<any>();
 
   const fetchContact = async () => {
@@ -60,13 +62,15 @@ export default ContactPage;
 export const getServerSideProps: GetServerSideProps = async ({ params, req }) => {
   const slug = params?.slug as string;
 
-  const { user } = await supabase.auth.api.getUserByCookie(req)
+  // const { user } = await supabase.auth.api.getUserByCookie(req)
 
-  if (!user) {
-    // If no user, redirect to index.
-    return { props: {}, redirect: { destination: '/', permanent: false } }
-  }
+  // if (!user) {
+  //   // If no user, redirect to index.
+  //   return { props: {}, redirect: { destination: '/', permanent: false } }
+  // }
+
+  // console.log(user)
 
   // If there is a user, return the user and the slug.
-  return { props: { user, slug } }
+  return { props: { slug } }
 }

@@ -1,19 +1,30 @@
-import React from 'react'
+import React, { use } from 'react'
 import Page from '../../components/Page'
 import { ContactForm } from '../../components/ContactForm'
 import { GetServerSideProps } from 'next'
 import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { supabase } from '../../lib/initSupabase'
 import { User } from '@supabase/supabase-js'
+import { Auth } from '@supabase/ui'
+import { useState, useEffect } from 'react'
 
 interface ContactPageProps {
   user: User | null;
 }
 
 
-const ContactPage: React.FC<ContactPageProps> = ({user}) => {
+const ContactPage: React.FC<ContactPageProps> = () => {
 
-  if (!user) return null;
+  const [isMounted, setIsMounted] = useState(false)
+  const { user } = Auth.useUser()
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+
+
+  if (!user || !isMounted) return null;
 
     return (
         <Page user={user}>
@@ -25,16 +36,3 @@ const ContactPage: React.FC<ContactPageProps> = ({user}) => {
 }
 
 export default ContactPage;
-
-
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req)
-
-  if (!user) {
-    // If no user, redirect to index.
-    return { props: {}, redirect: { destination: '/', permanent: false } }
-  }
-
-  // If there is a user, return it.
-  return { props: { user } }
-}

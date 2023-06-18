@@ -7,30 +7,33 @@ import { supabase } from '../../../lib/initSupabase'
 import { PaperClipIcon } from '@heroicons/react/20/solid'
 import { User } from '@supabase/supabase-js'
 
+
 interface ContactPageProps {
   slug: string;
   user: User | null;
 }
 
 
-const ContactEditPage: NextPage<ContactPageProps> = ({ slug, user }) => {
-    const [contact, setContact] = useState<any>();
+const ContactEditPage: NextPage<ContactPageProps> = ({ slug }) => {
 
-    const fetchContact = async () => {
-        const { data: contacts, error } = await supabase
-        .from('contacts')
-        .select()
-        .eq('id', slug)
-        .single();
+  const { user } = Auth.useUser();
+  const [contact, setContact] = useState<any>();
 
-        if (error) {
-        console.error(error);
-        return;
-        }
+  const fetchContact = async () => {
+      const { data: contacts, error } = await supabase
+      .from('contacts')
+      .select()
+      .eq('id', slug)
+      .single();
 
-        if (contacts) {
-        setContact(contacts);
-        }
+      if (error) {
+      console.error(error);
+      return;
+      }
+
+      if (contacts) {
+      setContact(contacts);
+      }
     };
 
     useEffect(() => {
@@ -56,13 +59,5 @@ export default ContactEditPage;
 export const getServerSideProps: GetServerSideProps = async ({ params, req }) => {
   const slug = params?.slug as string;
 
-  const { user } = await supabase.auth.api.getUserByCookie(req)
-
-  if (!user) {
-    // If no user, redirect to index.
-    return { props: {}, redirect: { destination: '/', permanent: false } }
-  }
-
-  // If there is a user, return the user and the slug.
-  return { props: { user, slug } }
+  return { props: { slug } }
 }

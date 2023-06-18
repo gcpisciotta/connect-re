@@ -3,12 +3,17 @@ import { GetServerSideProps, NextPage } from 'next'
 import { Card, Typography, Space } from '@supabase/ui'
 import { supabase } from '../lib/initSupabase'
 import { User } from '@supabase/supabase-js'
+import { Auth } from '@supabase/ui'
 
 interface ProfileProps {
   user: User | null
 }
 
-const Profile: NextPage<ProfileProps> = ({ user }) => {
+const Profile: NextPage<ProfileProps> = () => {
+
+  const { user, session } = Auth.useUser()
+
+
   return (
     <div style={{ maxWidth: '420px', margin: '96px auto' }}>
       <Card>
@@ -33,15 +38,3 @@ const Profile: NextPage<ProfileProps> = ({ user }) => {
 }
 
 export default Profile
-
-export const getServerSideProps: GetServerSideProps = async ({ req }) => {
-  const { user } = await supabase.auth.api.getUserByCookie(req)
-
-  if (!user) {
-    // If no user, redirect to index.
-    return { props: {}, redirect: { destination: '/', permanent: false } }
-  }
-
-  // If there is a user, return it.
-  return { props: { user } }
-}

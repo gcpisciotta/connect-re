@@ -22,8 +22,10 @@ const Index = () => {
   )
 
   const [authView, setAuthView] = useState('sign_in')
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (event === 'PASSWORD_RECOVERY') setAuthView('update_password')
@@ -77,6 +79,8 @@ const Index = () => {
       )
     }
   }
+
+  if (!isMounted) return null;
 
   return (
     <div style={{ maxWidth: '420px', margin: '96px auto' }}>
