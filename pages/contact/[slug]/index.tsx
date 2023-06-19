@@ -20,9 +20,20 @@ const ContactPage: NextPage<ContactPageProps> = ({ slug }) => {
   const [contact, setContact] = useState<any>();
 
   const fetchContact = async () => {
+    if (!user) return;
     const { data: contacts, error } = await supabase
       .from('contacts')
-      .select()
+      .select(`
+      *,
+      conversations (
+        id,
+        contact_id,
+        created_at,
+        notes
+      ),
+      tags ( id, name )
+      
+      `)
       .eq('id', slug)
       .single();
 

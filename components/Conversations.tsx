@@ -46,31 +46,10 @@ interface Comment {
 const Conversations: React.FC<ConversationProps> = ({ contact }) => {
   const user = supabase.auth.user();
   const [comment, setComment] = useState('');
-  const [conversations, setConversations] = useState<any>([]);
-
-  const fetchConversations = async (contact) => {
-
-    const { data: conversations, error } = await supabase
-      .from('conversations')
-      .select()
-      .eq('contact_id', contact.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error(error);
-      return;
-    }
-
-    setConversations(conversations);
-  };
-
-  useEffect(() => {
-    if (user && contact.id) {
-      console.log(contact.id)
-      fetchConversations(contact);
-    }
-  }, [contact.id, user]);
-
+  const [conversations, setConversations] = useState<any>(
+    contact.conversations.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  );  
+  
 
   const handleCommentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setComment(e.target.value);

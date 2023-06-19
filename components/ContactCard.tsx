@@ -10,6 +10,8 @@ import { supabase } from '../lib/initSupabase'
 import { TextField, Button, FormControl, InputLabel, MenuItem, Select, Autocomplete } from '@mui/material';
 import { Stack } from '@mui/material';
 import { useRouter } from 'next/navigation';
+import { TagsManager } from './TagsManager';
+
 
 interface ContactCardProps {
   contact: any;
@@ -52,9 +54,15 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
 
       <div className="px-4 sm:px-0">
         <Stack direction="row" spacing={4} alignItems="center">
-          <h1 className="text-xl font-semibold leading-7 text-gray-900">{contact?.name}</h1>
+          <div>
+            <h1 className="text-xl font-semibold leading-7 text-gray-900">{contact?.name}</h1>
+            <div className="flex">
+              <h2 className="text-lg font-medium leading-7 text-gray-900">{contact?.position}</h2>
+              <h2 className="ml-2 text-lg leading-7 text-gray-900">{contact?.company}</h2>
+            </div>
+          </div>
           <div className="flex-grow" /> {/* Empty div to push delete button to the right */}
-          <Button 
+          <Button
             onClick={setEditMode}
             color="primary"
             variant="contained"
@@ -68,27 +76,42 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
           >
             Delete
           </Button>
-          
-        </Stack>
 
+        </Stack>
 
       </div>
       <div className="mt-6 border-t border-gray-100">
         <dl className="divide-y divide-gray-100">
-          <Field label="Email address">{contact.email}</Field>
-          <Field label="Phone">{contact.phone}</Field>
-          <Field label="Company">{contact.company}</Field>
-          <Field label="Position">{contact.position}</Field>
+          <Field label="Email address">{contact?.email}</Field>
+          <Field label="Phone">{contact?.phone}</Field>
           <Field label="Social">
-          <a href={contact.linkedin} className="mr-2" style={{color: "#0077b5"}}><LinkedInIcon /></a>
-          <a href={contact.twitter} style={{color: "#1DA1F2"}}><TwitterIcon /></a>
-          <a href={contact.instagram} className="ml-2" style={{color: "#E1306C"}}><InstagramIcon /></a>
+            {contact?.linkedin && (
+              <a href={contact.linkedin} className="mr-2" style={{ color: "#0077b5" }}>
+                <LinkedInIcon />
+              </a>
+            )}
+            {contact?.twitter && (
+              <a href={contact.twitter} style={{ color: "#1DA1F2" }}>
+                <TwitterIcon />
+              </a>
+            )}
+            {contact?.instagram && (
+              <a href={contact.instagram} className="ml-2" style={{ color: "#E1306C" }}>
+                <InstagramIcon />
+              </a>
+            )}
+            {!contact?.linkedin && !contact?.twitter && !contact?.instagram && (
+              <span>None</span>
+            )}
           </Field>
           <Field label="Date of Birth">
             <CakeIcon className="inline text-red-600 mr-1" /> {contact.dob}
           </Field>
           <Field label="How You Met">
             {contact?.date_met}: {contact?.how_met}
+          </Field>
+          <Field label="Tags">
+            <TagsManager contact={contact} />
           </Field>
           <Conversations contact={contact} />
         </dl>

@@ -13,6 +13,8 @@ import {
 
 } from '@heroicons/react/24/outline'
 
+import { Chip, Autocomplete, TextField, Button } from '@mui/material';
+
 import Page from '../../components/Page'
 import { supabase } from '../../lib/initSupabase'
 import { User } from '@supabase/supabase-js'
@@ -47,7 +49,14 @@ const HomePage: React.FC<HomePageProps> = () => {
 
   const { user } = Auth.useUser()
   const router = useRouter()
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedPosition, setSelectedPosition] = useState("");
+  const [selectedTag, setSelectedTag] = useState("");
+  const [companies, setCompanies] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [tags, setTags] = useState([]);
   const [isMounted, setIsMounted] = useState(false);
+
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -57,21 +66,65 @@ const HomePage: React.FC<HomePageProps> = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [contacts, setContacts] = useState([]);
 
+  useEffect(() => {
+    const fetchOptions = async () => {
+      const { data: allContacts } = await supabase.from('contacts').select("company, position");
+
+      const companies = [...new Set(allContacts.map(contact => contact.company))].filter(Boolean);
+      const positions = [...new Set(allContacts.map(contact => contact.position))].filter(Boolean);
+      setCompanies(companies);
+      setPositions(positions);
+
+      const { data: allTags } = await supabase.from('tags').select("name");
+      const tags = allTags.map(tag => tag.name);
+      setTags(tags);
+    };
+
+    setIsMounted(true);
+    fetchContacts();
+    fetchOptions();
+  }, [user]);
+
+
   const fetchContacts = async () => {
     if (!user) return;  // if no user, return
-    const { data: contacts, error } = await supabase.from('contacts').select();
+  
+    // Construct filters
+    let filters = [];
+    if (selectedCompany) {
+      filters.push({column: 'company', operator: 'eq', value: selectedCompany});
+    }
+    if (selectedPosition) {
+      filters.push({column: 'position', operator: 'eq', value: selectedPosition});
+    }
+  
+    let query = supabase
+    .from('contacts')
+    .select();
 
+  
+    // Apply filters
+    filters.forEach(filter => {
+      query = query.filter(filter.column, filter.operator, filter.value);
+    });
+  
+    // Execute the query
+    const { data: contacts, error } = await query;
+  
     if (error) return;
+  
     setContacts(contacts);
   };
+  
+
 
 
 
   useEffect(() => {
-    setIsMounted(true);  
+    setIsMounted(true);
     fetchContacts();
+  }, [user, selectedCompany, selectedPosition, selectedTag]);
 
-  }, [user]);
 
   if (!isMounted) return null;
 
@@ -109,70 +162,31 @@ const HomePage: React.FC<HomePageProps> = () => {
         </div>
 
         <main className="lg:pr-96">
-          <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+          <header className="flex items-center justify-between border-b border-white/5 px-4 py-2 sm:px-6 sm:py-3 lg:px-8">
             <h1 className="text-base font-semibold leading-7 text-slate-800">
               Contacts ({contacts.length} Total)
             </h1>
-
-            {/* Sort dropdown */}
-            <Menu as="div" className="relative">
-              <Menu.Button className="flex items-center gap-x-1 text-sm font-medium leading-6 text-slate-800">
-                Sort by
-                <ChevronUpDownIcon className="h-5 w-5 text-gray-500" aria-hidden="true" />
-              </Menu.Button>
-              <Transition
-                as={Fragment}
-                enter="transition ease-out duration-100"
-                enterFrom="transform opacity-0 scale-95"
-                enterTo="transform opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="transform opacity-100 scale-100"
-                leaveTo="transform opacity-0 scale-95"
-              >
-                <Menu.Items className="absolute right-0 z-10 mt-2.5 w-40 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                  <Menu.Item>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Name
-                      </a>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Date updated
-                      </a>
-                    )}
-                  </Menu.Item>
-                  <Menu.Item>
-                    {({ active }) => (
-                      <a
-                        href="#"
-                        className={classNames(
-                          active ? 'bg-gray-50' : '',
-                          'block px-3 py-1 text-sm leading-6 text-gray-900'
-                        )}
-                      >
-                        Environment
-                      </a>
-                    )}
-                  </Menu.Item>
-                </Menu.Items>
-              </Transition>
-            </Menu>
           </header>
+          <div className="flex items-center justify-between border-b border-white/5 px-4 sm:px-6 lg:px-8 gap-2">
+            <Autocomplete
+              disablePortal
+              id="combo-box-demo"
+              options={companies}
+              sx={{ width: 300 }}
+              onChange={(event, newValue) => setSelectedCompany(newValue)}
+              renderInput={(params) => <TextField {...params} label="Filter by company" />}
+            />
+            <Autocomplete
+              disablePortal
+              id="combo-box-demo"
+              options={positions}
+              sx={{ width: 300 }}
+              onChange={(event, newValue) => setSelectedPosition(newValue)}
+              renderInput={(params) => <TextField {...params} label="Filter by position" />}
+            />
+
+
+          </div>
 
           {/* Deployment list */}
           <ul role="list" className="divide-y divide-white/5">
@@ -216,31 +230,6 @@ const HomePage: React.FC<HomePageProps> = () => {
 
         {/* Activity feed */}
         <aside className="bg-white lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:w-96 lg:overflow-y-auto lg:border-l lg:border-white/5">
-          <header className="flex items-center justify-between border-b border-white/5 px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-            <h2 className="text-base font-semibold leading-7 text-slate-800">Reminders</h2>
-            <a href="#" className="text-sm font-semibold leading-6 text-indigo-400">
-              View all
-            </a>
-          </header>
-          <ul role="list" className="divide-y divide-white/5">
-            {activityItems.map((item) => (
-              <li key={item.commit} className="px-4 py-4 sm:px-6 lg:px-8">
-                <div className="flex items-center gap-x-3">
-                  <img src={item.user.imageUrl} alt="" className="h-6 w-6 flex-none rounded-full bg-gray-800" />
-                  <h3 className="flex-auto truncate text-sm font-semibold leading-6 text-slate-800">{item.user.name}</h3>
-                  <time dateTime={item.dateTime} className="flex-none text-xs text-gray-600">
-                    {item.date}
-                  </time>
-                </div>
-                <p className="mt-3 truncate text-sm text-gray-500">
-                  Pushed to <span className="text-gray-400">{item.projectName}</span> (
-                  <span className="font-mono text-gray-400">{item.commit}</span> on{' '}
-                  <span className="text-gray-400">{item.branch}</span>)
-                </p>
-              </li>
-            ))}
-
-          </ul>
           <ReminderFeed showForm={false} />
         </aside>
 

@@ -61,7 +61,18 @@ export const ReminderFeed: React.FC<ContactCardProps> = ({ contact, showForm=tru
   const fetchReminders = async (contact) => {
     let query = supabase
       .from('reminders')
-      .select()
+      .select(`
+      id,
+      contact_id,
+      message,
+      reminder_date,
+      acknowledged,
+      user_id,
+      contact: contact_id (
+        id,
+        name
+      )
+      `)
       .eq('acknowledged', false)
       .eq('user_id', user?.id)
       .order('reminder_date', { ascending: true });
@@ -79,42 +90,7 @@ export const ReminderFeed: React.FC<ContactCardProps> = ({ contact, showForm=tru
       return;
     }
 
-
-    if (contact) {
-      setReminders(reminders);
-    } else {
-      fetchContacts(reminders);
-    }
-  };
-
-  const fetchContacts = async (reminders) => {
-    // Extract unique contact_ids from reminders
-    const contactIds = Array.from(new Set(reminders.map((reminder) => reminder.contact_id)));
-  
-    // Fetch contacts from supabase using contact_ids
-    const { data: contactsData, error: contactsError } = await supabase
-      .from('contacts')
-      .select('*')
-      .in('id', contactIds);
-  
-    if (contactsError) {
-      console.error(contactsError);
-      return;
-    }
-  
-    // Create a lookup object for contacts by id
-    const contactsById = contactsData.reduce((acc, contact) => {
-      acc[contact.id] = contact;
-      return acc;
-    }, {});
-  
-    // Add contact name to each reminder
-    const remindersWithContacts = reminders.map((reminder) => ({
-      ...reminder,
-      contact_name: contactsById[reminder.contact_id]?.name || 'N/A',
-    }));
-  
-    setReminders(remindersWithContacts);
+    setReminders(reminders);
   };
   
 
@@ -147,7 +123,7 @@ export const ReminderFeed: React.FC<ContactCardProps> = ({ contact, showForm=tru
       {showForm && <ReminderForm handleSetReminder={handleSetReminder} />}
       <ul role="list" className="divide-y divide-white/5">
         {reminders.map((item, index) => (
-          <ReminderListItem key={item} item={item} handleAcknowledge={handleAcknowledge} />
+          <ReminderListItem key={index} item={item} handleAcknowledge={handleAcknowledge} />
         ))}
       </ul>
     </>

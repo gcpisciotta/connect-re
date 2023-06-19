@@ -12,8 +12,8 @@ interface ReminderListItemProps {
 export const ReminderListItem: React.FC<ReminderListItemProps> = ({ item, handleAcknowledge, contact }) => (
   <li className="px-4 py-4 sm:px-6 lg:px-8">
       { (!contact) && (
-        <Link href={`/contact/${item.contact_id}`}>
-        <h2 className="text-gray-400">{item.contact_name}</h2>
+        <Link href={`/contact/${item.contact?.id}`}>
+        <h2 className="text-gray-400">{item?.contact?.name}</h2>
         </Link>
       )
       }
