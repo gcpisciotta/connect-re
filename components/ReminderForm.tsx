@@ -3,11 +3,13 @@ import { TextField, Button, Stack } from '@mui/material';
 
 interface ReminderFormProps {
   handleSetReminder: (duration?: string) => Promise<void>;
+  reminder?: string;
+  setReminder?: React.Dispatch<React.SetStateAction<string>>;
+  dateField?: string;
+  setDateField?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const ReminderForm: React.FC<ReminderFormProps> = ({ handleSetReminder }) => {
-  const [reminder, setReminder] = useState('');  
-  const [dateField, setDateField] = useState('');
+export const ReminderForm: React.FC<ReminderFormProps> = ({ handleSetReminder, reminder, setReminder, dateField, setDateField }) => {
 
   return (
     <Stack spacing={1} p={2} className="">
