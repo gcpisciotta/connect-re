@@ -37,7 +37,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
   const { control, handleSubmit } = useForm<ContactProps>();
 
   const onSubmit = async (formData: ContactProps) => {
-    
+
     formData.id = contact?.id;
     formData.user_id = user.id;
 
@@ -89,88 +89,96 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
     <div className="m-8 bg-white p-8 rounded-lg h-full">
       <h1 className="text-2xl font-bold mb-8">{mode}</h1>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack direction="column" spacing={2} justifyContent="center">
-          <Controller
-            name="name"
-            control={control}
-            defaultValue={contact?.name}
-            render={({ field }) => <TextField {...field} label="Full Name" />}
-          />
-          <Controller
-            name="email"
-            control={control}
-            defaultValue={contact?.email}
-            render={({ field }) => <TextField {...field} label="Email" />}
-          />
-          <Controller
-            name="phone"
-            control={control}
-            defaultValue={contact?.phone}
-            render={({ field }) => <TextField {...field} label="Phone" />}
-          />
-          <Controller
-            name="company"
-            control={control}
-            defaultValue={contact?.company}
-            render={({ field }) => <TextField {...field} label="Company" />}
-          />
-          <Controller
-            name="position"
-            control={control}
-            defaultValue={contact?.position}
-            render={({ field }) => <TextField {...field} label="Position" />}
-          />
-          
-          <Controller
-            name="twitter"
-            control={control}
-            defaultValue={contact?.twitter}
-            render={({ field }) => <TextField {...field} label="Twitter" />}
-          />
-          <Controller
-            name="linkedin"
-            control={control}
-            defaultValue={contact?.linkedin}
-            render={({ field }) => <TextField {...field} label="LinkedIn" />}
-          />
-          <Controller
-            name="instagram"
-            control={control}
-            defaultValue={contact?.instagram}
-            render={({ field }) => <TextField {...field} label="Instagram" />}
-          />
-          <Controller
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Stack direction="column" spacing={2} justifyContent="center">
+            <Controller
+              name="name"
+              control={control}
+              defaultValue={contact?.name}
+              render={({ field }) => <TextField {...field} label="Full Name" />}
+            />
+            <Controller
+              name="email"
+              control={control}
+              defaultValue={contact?.email}
+              render={({ field }) => <TextField {...field} label="Email" />}
+            />
+            <Controller
+              name="phone"
+              control={control}
+              defaultValue={contact?.phone}
+              render={({ field }) => <TextField {...field} label="Phone" />}
+            />
+            <Controller
+              name="company"
+              control={control}
+              defaultValue={contact?.company}
+              render={({ field }) => <TextField {...field} label="Company" />}
+            />
+            <Controller
+              name="position"
+              control={control}
+              defaultValue={contact?.position}
+              render={({ field }) => <TextField {...field} label="Position" />}
+            />
+
+            <Controller
+              name="twitter"
+              control={control}
+              defaultValue={contact?.twitter}
+              render={({ field }) => <TextField {...field} label="Twitter" />}
+            />
+            <Controller
+              name="linkedin"
+              control={control}
+              defaultValue={contact?.linkedin}
+              render={({ field }) => <TextField {...field} label="LinkedIn" />}
+            />
+            <Controller
+              name="instagram"
+              control={control}
+              defaultValue={contact?.instagram}
+              render={({ field }) => <TextField {...field} label="Instagram" />}
+            />
+            <Controller
               name="dob"
               control={control}
-              defaultValue={contact?.dob ? dayjs(contact?.dob) : null}
+              defaultValue={contact?.dob ? contact?.dob : new Date()}
               render={({ field }) => (
-                <DatePicker
+                <TextField
                   {...field}
                   label="Birthday"
-                  renderInput={(params) => <TextField {...params} />}
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
                 />
               )}
             />
-          <Controller
-            name="dateMet"
-            control={control}
-            defaultValue={contact?.dateMet ? dayjs(contact?.dateMet) : dayjs()}
-            render={({ field }) => (
-              <DatePicker
-                {...field}
-                label="When you met"
-                renderInput={(params) => <TextField {...params} />}
-              />
-            )}
-          />
-          <Controller
-            name="howMet"
-            control={control}
-            defaultValue={contact?.howMet}
-            render={({ field }) => <TextField {...field} label="How You Met" />}
-          />
-          <Controller
+            <Controller
+              name="dateMet"
+              control={control}
+              defaultValue={contact?.dateMet ? dayjs(contact?.dateMet).toDate() : new Date()}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="When you met"
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  value={field.value ? dayjs(field.value).format("YYYY-MM-DD") : ""}
+                />
+              )}
+            />
+            <Controller
+              name="howMet"
+              control={control}
+              defaultValue={contact?.howMet}
+              render={({ field }) => <TextField {...field} label="How You Met" />}
+            />
+            {/* <Controller
             name="tags"
             control={control}
             defaultValue={contact?.tags}
@@ -181,10 +189,10 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
                 renderInput={(params) => <TextField {...params} label="Tags" />}
               />
             )}
-          />
-          <Button type="submit">Submit</Button>
-        </Stack>
-      </form>
+          /> */}
+            <Button type="submit">Submit</Button>
+          </Stack>
+        </form>
       </LocalizationProvider>
     </div>
   );

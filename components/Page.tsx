@@ -28,8 +28,8 @@ import { GetServerSideProps, NextPage } from 'next'
 const navigation = [
   { name: 'Contacts', href: '/home', icon: FolderIcon, current: false },
   { name: 'Add a Contact', href: '/contact/create', icon: UserCircleIcon, current: false },
-  { name: 'Tags', href: '/tags', icon: TagIcon, current: false },
-  { name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
+  // { name: 'Tags', href: '/tags', icon: TagIcon, current: false },
+  // { name: 'Settings', href: '#', icon: Cog6ToothIcon, current: false },
 ]
 
 const statuses = {

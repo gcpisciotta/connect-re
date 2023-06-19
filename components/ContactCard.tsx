@@ -104,15 +104,17 @@ export const ContactCard: React.FC<ContactCardProps> = ({ contact }) => {
               <span>None</span>
             )}
           </Field>
+
+
           <Field label="Date of Birth">
             <CakeIcon className="inline text-red-600 mr-1" /> {contact.dob}
           </Field>
           <Field label="How You Met">
             {contact?.date_met}: {contact?.how_met}
           </Field>
-          <Field label="Tags">
+          {/* <Field label="Tags">
             <TagsManager contact={contact} />
-          </Field>
+          </Field> */}
           <Conversations contact={contact} />
         </dl>
       </div>

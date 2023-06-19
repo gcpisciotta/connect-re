@@ -7,17 +7,20 @@ interface ReminderListItemProps {
   item: any;
   handleAcknowledge: (reminder: any) => Promise<void>;
   contact?: any;
+  key?: any;
 }
 
-export const ReminderListItem: React.FC<ReminderListItemProps> = ({ item, handleAcknowledge, contact }) => (
-  <li className="px-4 py-4 sm:px-6 lg:px-8">
+export const ReminderListItem: React.FC<ReminderListItemProps> = ({ key, item, handleAcknowledge, contact }) => (
+  
+  <li >
+    <div className="border-t mx-4 py-2 sm:px-6 lg:px-8">
       { (!contact) && (
         <Link href={`/contact/${item.contact?.id}`}>
-        <h2 className="text-gray-400">{item?.contact?.name}</h2>
+        <h2 className="text-gray-700">{item?.contact?.name}</h2>
         </Link>
       )
       }
-    <div className="flex items-center gap-x-3">
+    <div className="flex items-center gap-x-2">
       <h3 className="flex-auto text-sm font-semibold leading-6 ">
         <time
           dateTime={item.reminder_date}
@@ -39,12 +42,14 @@ export const ReminderListItem: React.FC<ReminderListItemProps> = ({ item, handle
         </IconButton>
       </div>
     </div>
-    <p className="mt-3 text-sm text-gray-500">
+    <p className="mt-2 text-sm text-gray-500">
       <span className="text-gray-400">
         {item.message}
       </span>
     </p>
+    </div>
   </li>
+  
 )
 
 export default ReminderListItem;

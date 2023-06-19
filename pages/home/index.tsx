@@ -51,7 +51,7 @@ const HomePage: React.FC<HomePageProps> = () => {
   const router = useRouter()
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedPosition, setSelectedPosition] = useState("");
-  const [selectedTag, setSelectedTag] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [companies, setCompanies] = useState([]);
   const [positions, setPositions] = useState([]);
   const [tags, setTags] = useState([]);
@@ -88,34 +88,38 @@ const HomePage: React.FC<HomePageProps> = () => {
 
   const fetchContacts = async () => {
     if (!user) return;  // if no user, return
-  
+
     // Construct filters
     let filters = [];
     if (selectedCompany) {
-      filters.push({column: 'company', operator: 'eq', value: selectedCompany});
+      filters.push({ column: 'company', operator: 'eq', value: selectedCompany });
     }
     if (selectedPosition) {
-      filters.push({column: 'position', operator: 'eq', value: selectedPosition});
+      filters.push({ column: 'position', operator: 'eq', value: selectedPosition });
     }
-  
-    let query = supabase
-    .from('contacts')
-    .select();
+    if (searchText) {
+      filters.push({ column: 'name', operator: 'ilike', value: `%${searchText}%` });
+    }
 
-  
+
+    let query = supabase
+      .from('contacts')
+      .select();
+
+
     // Apply filters
     filters.forEach(filter => {
       query = query.filter(filter.column, filter.operator, filter.value);
     });
-  
+
     // Execute the query
     const { data: contacts, error } = await query;
-  
+
     if (error) return;
-  
+
     setContacts(contacts);
   };
-  
+
 
 
 
@@ -123,7 +127,7 @@ const HomePage: React.FC<HomePageProps> = () => {
   useEffect(() => {
     setIsMounted(true);
     fetchContacts();
-  }, [user, selectedCompany, selectedPosition, selectedTag]);
+  }, [user, selectedCompany, selectedPosition, searchText]);
 
 
   if (!isMounted) return null;
@@ -155,19 +159,22 @@ const HomePage: React.FC<HomePageProps> = () => {
                   placeholder="Search..."
                   type="search"
                   name="search"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
                 />
+
               </div>
             </form>
           </div>
         </div>
 
         <main className="lg:pr-96">
-          <header className="flex items-center justify-between border-b border-white/5 px-4 py-2 sm:px-6 sm:py-3 lg:px-8">
+          <header className="flex items-center justify-between   px-4 py-2 sm:px-6 sm:py-3 lg:px-8">
             <h1 className="text-base font-semibold leading-7 text-slate-800">
               Contacts ({contacts.length} Total)
             </h1>
           </header>
-          <div className="flex items-center justify-between border-b border-white/5 px-4 sm:px-6 lg:px-8 gap-2">
+          <div className="flex items-center justify-between  px-4 sm:px-6 lg:px-8 gap-2">
             <Autocomplete
               disablePortal
               id="combo-box-demo"
@@ -229,7 +236,7 @@ const HomePage: React.FC<HomePageProps> = () => {
         </main>
 
         {/* Activity feed */}
-        <aside className="bg-white lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:w-96 lg:overflow-y-auto lg:border-l lg:border-white/5">
+        <aside className="bg-white lg:fixed lg:bottom-0 lg:right-0 lg:top-16 lg:w-96 lg:overflow-y-auto lg:border-l">
           <ReminderFeed showForm={false} />
         </aside>
 

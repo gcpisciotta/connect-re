@@ -10,7 +10,7 @@ export const ReminderForm: React.FC<ReminderFormProps> = ({ handleSetReminder })
   const [dateField, setDateField] = useState('');
 
   return (
-    <Stack spacing={1} p={2} className="border-b border-white/5">
+    <Stack spacing={1} p={2} className="">
         <TextField
           label="Create a reminder"
           multiline

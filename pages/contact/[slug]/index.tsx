@@ -30,9 +30,7 @@ const ContactPage: NextPage<ContactPageProps> = ({ slug }) => {
         contact_id,
         created_at,
         notes
-      ),
-      tags ( id, name )
-      
+      )
       `)
       .eq('id', slug)
       .single();
@@ -59,7 +57,7 @@ const ContactPage: NextPage<ContactPageProps> = ({ slug }) => {
         <main className="lg:pr-96">
           <ContactCard contact={contact} />
         </main>
-        <aside className="bg-white lg:fixed lg:bottom-0 lg:right-0 lg:top-0 lg:w-96 lg:overflow-y-auto lg:border-l lg:border-white/5">
+        <aside className="bg-white lg:fixed lg:bottom-0 lg:right-0 lg:top-0 lg:w-96 lg:overflow-y-auto lg:border-l">
           <ReminderFeed contact={contact} />
         </aside>
       </div>
