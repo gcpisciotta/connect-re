@@ -66,7 +66,7 @@ const Index = () => {
               width="96"
             />
             <Typography.Title level={3}>
-              Welcome to ConnectRE
+              Welcome to ConectRE
             </Typography.Title>
           </div>
           <Auth
