@@ -143,7 +143,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({ mode, contact }) => {
             <Controller
               name="dob"
               control={control}
-              defaultValue={contact?.dob ? contact?.dob : new Date()}
+              defaultValue={contact?.dob ? contact?.dob : null}
               render={({ field }) => (
                 <TextField
                   {...field}
