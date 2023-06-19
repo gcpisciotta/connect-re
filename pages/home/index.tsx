@@ -70,8 +70,8 @@ const HomePage: React.FC<HomePageProps> = () => {
     const fetchOptions = async () => {
       const { data: allContacts } = await supabase.from('contacts').select("company, position");
 
-      const companies = [...new Set(allContacts.map(contact => contact.company))].filter(Boolean);
-      const positions = [...new Set(allContacts.map(contact => contact.position))].filter(Boolean);
+      const companies = Array.from(new Set(allContacts.map((contact) => contact.company))).filter(Boolean);
+      const positions = Array.from(new Set(allContacts.map((contact) => contact.position))).filter(Boolean);
       setCompanies(companies);
       setPositions(positions);
 
